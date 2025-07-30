@@ -20,7 +20,7 @@ load_dotenv(dotenv_path=".env.local")
 redis_url = os.getenv("REDIS_URL")
 
 
-async def get_teachers(code):
+async def get_teachers():
   async with httpx.AsyncClient() as client:
     path = api + "getteachers"
     response = await client.get(path, params=params)
