@@ -7,7 +7,7 @@ app = FastAPI()
 
 
 @app.get('/api/teachers')
-async def main(request: Request):
+async def get_handler(request: Request):
     try:
         await main()
     except Exception as e:
