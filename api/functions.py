@@ -40,7 +40,7 @@ async def main():
           for unit in teacher["units"]:
             teacher["students"] += len(list(filter(lambda link: link["EdUnitId"] == unit, links)))
           #print(teacher["name"], teacher["students"]) 
-          output.append([teacher["name"], teacher["students"])
+          output.append([teacher["name"], teacher["students"]])
         #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
         print(output)
