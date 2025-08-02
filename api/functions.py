@@ -24,7 +24,7 @@ async def main():
         teachers = await get_teachers(client)
         for teacher in teachers:
            ...   
-        await get_all_students(client)
+        students = await get_all_students(client, 0)
         units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
 
