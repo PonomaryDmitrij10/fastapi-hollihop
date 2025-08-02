@@ -25,7 +25,7 @@ async def get_teachers(client):
     response = await client.get(path, params=params)
     response = response.json()
     teachers = list(filter(lambda teacher: not teacher["Fired"], response["Teachers"]))
-    teachers = map(lambda teacher: teacher["LastName"], teachers)
+    teachers = map(lambda teacher: {"id": teacher["Id"], "name": teacher["LastName"]} , teachers)
     for teacher in teachers:
       print(teacher)
     print('finished.')
@@ -40,7 +40,7 @@ async def get_units(client, teacher, from, to):
   params["dataTo"] = to
   response = await client.get(path, params=params)
   response = response.json()
-  return response 
+  return response["EdUnits"]
 
 async def get_schedule_items(units):
   ...
