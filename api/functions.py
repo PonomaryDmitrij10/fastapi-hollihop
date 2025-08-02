@@ -33,11 +33,11 @@ async def get_teachers(client):
     #connector = response["result"]["entity_id"].split("|")[0]
     #return {"chat": str(response["result"]["id"]), "user": str(response["result"]["owner"]), "connector": connector}
 
-async def get_units(client, teacher, from, to):
+async def get_units(client, teacher, date_from, date_to):
   path = api + "GetEdUnits"
   params["teacherId"] = teacher
-  params["dataFrom"] = from
-  params["dataTo"] = to
+  params["dataFrom"] = date_from
+  params["dataTo"] = date_to
   response = await client.get(path, params=params)
   response = response.json()
   return response["EdUnits"]
