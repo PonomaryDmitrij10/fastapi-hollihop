@@ -29,13 +29,16 @@ async def main():
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         
-        async for teacher in teachers:
+        #async for teacher in teachers:
+        async def count_students(teacher):
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
           print(teacher["id"], len(teacher["units"]))
           teacher["students"] = 0
           for unit in teacher["units"]:
             teacher["students"] += len(list.filter(lambda link: link["EdUnitId"] == unit, links))
-          print(teacher["name"], teacher["students"])     
+          print(teacher["name"], teacher["students"]) 
+        coros = [count_students(teacher) for teacher in teachers]
+        asyncio.gather(*coros)
         print("main finished.")
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
