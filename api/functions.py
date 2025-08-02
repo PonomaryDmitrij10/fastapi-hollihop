@@ -31,6 +31,7 @@ async def main():
         
         for teacher in teachers:
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
+          print(teacher["id"], len(teacher["units"])
           teacher["students"] = 0
           for unit in teacher["units"]:
             teacher["students"] += len(list.filter(lambda link: link["EdUnitId"] == unit, links))
