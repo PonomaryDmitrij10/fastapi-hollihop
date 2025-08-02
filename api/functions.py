@@ -29,8 +29,9 @@ async def main():
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         for teacher in teachers:
-            print("teacher: ", teacher)
-            await asyncio.sleep(0.5)
+            ...
+            #print("teacher: ", teacher)
+            #await asyncio.sleep(0.5)
         #async for teacher in teachers:
         async def count_students(client, teacher):
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
