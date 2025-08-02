@@ -21,9 +21,12 @@ load_dotenv(dotenv_path=".env.local")
 
 async def main():
     async with httpx.AsyncClient() as client:
+        date_from = "2025-07-01"
+        date_to = "2025-08-01"
         teachers = await get_teachers(client)
         for teacher in teachers:
-          teacher["units"] = await get_units(client, teacher["id"], "2025-07-01", "2025-08-01")
+          teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
+        unit_students = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         
         print("main finished.")
@@ -71,10 +74,17 @@ async def get_all_students(client, skip):
         students += output
     return students
 
-async def get_all_student_unit_links(client, date_from, date_to):
+async def get_all_student_unit_links(client, date_from, date_to, skip):
     links = []
-    path = api + "GetStudents"
+    path = api + "GetEdUnitStudents"
     params["skip"] = skip
+    params["dateFrom"] = date_from
+    params["dateTo"] = date_to
     response = await client.get(path, params=params)
     response = response.json()
-    students += response["Students"]
+    links += response["EdUnitStudents"]
+    print("links count: ", len(students))
+    if len(links) % 1000 == 0:
+        output = await get_all_student_unit_links(client, date_from, date_to, skip + 1000)
+        links += output
+    return links
