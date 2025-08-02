@@ -56,6 +56,7 @@ async def get_students(units):
 
 async def get_all_students(client):
     path = api + "GetStudents"
+    params["skip"] = 1000
     response = await client.get(path, params=params)
     response = response.json()
     students = response["Students"]
