@@ -42,6 +42,8 @@ async def get_units(client, teacher, from, to):
   response = response.json()
   return response["EdUnits"]
 
-async def get_schedule_items(units):
+async def get_students(units):
   ...
+  ...
+  
   
