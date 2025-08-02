@@ -22,7 +22,12 @@ load_dotenv(dotenv_path=".env.local")
 async def main():
     async with httpx.AsyncClient() as client:
         teachers = await get_teachers(client)
-        
+        for teacher in teachers:
+           ...   
+        await get_all_students(client)
+        units = await get_units(client, 1418, "2025-01-01","2025-08-01")
+        #units = list(filter(lambda unit: unit
+
 async def get_teachers(client):
     path = api + "getteachers"
     response = await client.get(path, params=params)
@@ -48,5 +53,10 @@ async def get_units(client, teacher, date_from, date_to):
 async def get_students(units):
   ...
   ...
-  
-  
+
+async def get_all_students(client):
+    path = api + "GetEdUnits"
+    response = await client.get(path, params=params)
+    response = response.json()
+    students = response["Students"]
+    print("students count: ", len(students))
