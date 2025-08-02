@@ -89,7 +89,7 @@ async def get_all_student_unit_links(client, date_from, date_to, skip):
     response = await client.get(path, params=params)
     response = response.json()
     links += response["EdUnitStudents"]
-    print("links count: ", len(students))
+    print("links count: ", len(links))
     if len(links) % 1000 == 0:
         output = await get_all_student_unit_links(client, date_from, date_to, skip + 1000)
         links += output
