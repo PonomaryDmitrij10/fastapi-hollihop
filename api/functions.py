@@ -21,7 +21,7 @@ load_dotenv(dotenv_path=".env.local")
 
 async def main():
     async with httpx.AsyncClient() as client:
-        teachers = get_teachers(client)
+        teachers = await get_teachers(client)
         
 async def get_teachers(client):
     path = api + "getteachers"
