@@ -23,9 +23,11 @@ async def main():
     async with httpx.AsyncClient() as client:
         teachers = await get_teachers(client)
         for teacher in teachers:
-           ...   
+          teacher["units"] = await get_units(client, teacher["id"], "2025-07-01", "2025-08-01")
         students = await get_all_students(client, 0)
-        units = await get_units(client, 1418, "2025-01-01","2025-08-01")
+        
+        print("main finished.")
+        #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
 
 async def get_teachers(client):
@@ -48,7 +50,9 @@ async def get_units(client, teacher, date_from, date_to):
   params["dateTo"] = date_to
   response = await client.get(path, params=params)
   response = response.json()
-  return response["EdUnits"]
+  $units = response["EdUnits"]
+  units = map(lambda unit: unit["Id"],  response["EdUnits"])
+  return units
 
 async def get_students(units):
   ...
@@ -66,3 +70,11 @@ async def get_all_students(client, skip):
         output = await get_all_students(client, skip + 1000)
         students += output
     return students
+
+async def get_all_student_unit_links(client, date_from, date_to):
+    links = []
+    path = api + "GetStudents"
+    params["skip"] = skip
+    response = await client.get(path, params=params)
+    response = response.json()
+    students += response["Students"]
