@@ -20,8 +20,7 @@ load_dotenv(dotenv_path=".env.local")
 #redis_url = os.getenv("REDIS_URL")
 
 
-async def get_teachers():
-  async with httpx.AsyncClient() as client:
+async def get_teachers(client):
     path = api + "getteachers"
     response = await client.get(path, params=params)
     response = response.json()
@@ -30,6 +29,19 @@ async def get_teachers():
     for teacher in teachers:
       print(teacher)
     print('finished.')
+    return teachers
     #connector = response["result"]["entity_id"].split("|")[0]
     #return {"chat": str(response["result"]["id"]), "user": str(response["result"]["owner"]), "connector": connector}
-    
+
+async def get_units(client, teacher, from, to):
+  path = api + "GetEdUnits"
+  params["teacherId"] = teacher
+  params["dataFrom"] = from
+  params["dataTo"] = to
+  response = await client.get(path, params=params)
+  response = response.json()
+  return response 
+
+async def get_schedule_items(units):
+  ...
+  
