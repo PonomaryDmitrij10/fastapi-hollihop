@@ -24,7 +24,7 @@ async def main():
     async with httpx.AsyncClient() as client:
         date_from = "2025-07-01"
         date_to = "2025-08-01"
-        
+        output = []
         teachers = await get_teachers(client)
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
@@ -39,9 +39,11 @@ async def main():
           teacher["students"] = 0
           for unit in teacher["units"]:
             teacher["students"] += len(list(filter(lambda link: link["EdUnitId"] == unit, links)))
-          print(teacher["name"], teacher["students"]) 
-        coros = [count_students(client, teacher) for teacher in teachers]
-        asyncio.gather(*coros)
+          #print(teacher["name"], teacher["students"]) 
+          output.append([teacher["name"], teacher["students"])
+        #coros = [count_students(client, teacher) for teacher in teachers]
+        #asyncio.gather(*coros)
+        print(output)
         print("main finished.")
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
