@@ -29,7 +29,7 @@ async def main():
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         
-        for teacher in teachers:
+        async for teacher in teachers:
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
           print(teacher["id"], len(teacher["units"]))
           teacher["students"] = 0
