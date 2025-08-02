@@ -23,7 +23,7 @@ load_dotenv(dotenv_path=".env.local")
 async def main():
     async with httpx.AsyncClient() as client:
         date_from = "2025-07-01"
-        date_to = "2025-08-01"
+        date_to = "2025-07-31"
         output = []
         teachers = await get_teachers(client)
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
