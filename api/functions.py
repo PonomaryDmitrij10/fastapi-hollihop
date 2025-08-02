@@ -33,7 +33,7 @@ async def main():
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
           teacher["students"] = 0
           for unit in teacher["units"]:
-            teacher["students"] += len(list.filter(lambda link: link["EdUnitId"] == unit, links)
+            teacher["students"] += len(list.filter(lambda link: link["EdUnitId"] == unit, links))
           print(teacher["name"], teacher["students"])     
         print("main finished.")
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
