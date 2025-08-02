@@ -45,7 +45,7 @@ async def get_teachers(client):
     response = await client.get(path, params=params)
     response = response.json()
     teachers = list(filter(lambda teacher: not teacher["Fired"], response["Teachers"]))
-    teachers = map(lambda teacher: {"id": teacher["Id"], "name": teacher["LastName"]} , teachers)
+    teachers = list(map(lambda teacher: {"id": teacher["Id"], "name": teacher["LastName"]} , teachers))
     for teacher in teachers:
       print(teacher)
     print('finished.')
