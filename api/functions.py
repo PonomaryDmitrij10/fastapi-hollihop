@@ -19,7 +19,10 @@ connection_string = os.getenv("postgresql")
 load_dotenv(dotenv_path=".env.local")
 #redis_url = os.getenv("REDIS_URL")
 
-
+async def main():
+    async with httpx.AsyncClient() as client:
+        teachers = get_teachers(client)
+        
 async def get_teachers(client):
     path = api + "getteachers"
     response = await client.get(path, params=params)
@@ -36,8 +39,8 @@ async def get_teachers(client):
 async def get_units(client, teacher, date_from, date_to):
   path = api + "GetEdUnits"
   params["teacherId"] = teacher
-  params["dataFrom"] = date_from
-  params["dataTo"] = date_to
+  params["dateFrom"] = date_from
+  params["dateTo"] = date_to
   response = await client.get(path, params=params)
   response = response.json()
   return response["EdUnits"]
