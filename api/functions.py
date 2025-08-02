@@ -26,8 +26,9 @@ async def get_teachers():
     response = await client.get(path, params=params)
     response = response.json()
     teachers = list(filter(lambda teacher: not teacher["Fired"], response["Teachers"]))
+    teachers = map(lambda teacher: teacher["LastName"], teachers)
     for teacher in teachers:
-      print(teacher["Id"], teacher["FirstName"], teacher["LastName"])
+      print(teacher)
     print('finished.')
     #connector = response["result"]["entity_id"].split("|")[0]
     #return {"chat": str(response["result"]["id"]), "user": str(response["result"]["owner"]), "connector": connector}
