@@ -2,6 +2,7 @@ from urllib.parse import unquote
 import httpx
 import re
 import asyncio
+import datetime
 #import asyncpg
 import time
 import os
@@ -23,6 +24,7 @@ async def main():
     async with httpx.AsyncClient() as client:
         date_from = "2025-07-01"
         date_to = "2025-08-01"
+        
         teachers = await get_teachers(client)
         for teacher in teachers:
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
@@ -88,3 +90,11 @@ async def get_all_student_unit_links(client, date_from, date_to, skip):
         output = await get_all_student_unit_links(client, date_from, date_to, skip + 1000)
         links += output
     return links
+
+def check_dates(dates: list, more: bool):
+    format = "%Y-%m-%d"
+    dates = map(lambda date: datetime.strptime(date, format), dates)
+    if more:
+        return dates[0] > dates[1]
+    else:
+        return dates[0] < dates[1]
