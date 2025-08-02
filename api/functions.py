@@ -29,11 +29,11 @@ async def main():
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         for teacher in teachers:
-            ...
+            #...
             #print("teacher: ", teacher)
             #await asyncio.sleep(0.5)
         #async for teacher in teachers:
-        async def count_students(client, teacher):
+        #async def count_students(client, teacher):
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
           print(teacher["id"], len(teacher["units"]))
           teacher["students"] = 0
@@ -68,6 +68,7 @@ async def get_units(client, teacher, date_from, date_to):
   response = response.json()
   units = response["EdUnits"]
   units = map(lambda unit: unit["Id"],  response["EdUnits"])
+  print(len(units))
   return units
 
 async def get_students(units):
