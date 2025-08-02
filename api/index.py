@@ -1,15 +1,15 @@
 from fastapi import FastAPI, Request
 #from tgbot.main import tgbot
-from api.functions import get_teachers
+from api.functions import get_teachers, main
 from urllib.parse import unquote, urlparse
 
 app = FastAPI()
 
 
 @app.get('/api/teachers')
-async def teachers(request: Request):
+async def main(request: Request):
     try:
-        await get_teachers()
+        await main()
     except Exception as e:
         print(e)
 
