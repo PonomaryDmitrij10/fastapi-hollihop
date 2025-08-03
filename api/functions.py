@@ -40,7 +40,7 @@ async def main():
           teacher["left"] = 0
           for unit in teacher["units"]:
             students_count = list(filter(lambda link: link["EdUnitId"] == unit, links))
-            left_count = list(filter(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from], True), students_count))
+            left_count = list(filter(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from]) and check_dates([date_to, link["EndDate"]]), students_count))
             teacher["students"] += len(students_count)
             teacher["left"] += len(left_count)
           #print(teacher["name"], teacher["students"]) 
@@ -109,13 +109,10 @@ async def get_all_student_unit_links(client, date_from, date_to, skip):
         links += output
     return links
 
-def check_dates(dates: list, more: bool):
+def check_dates(dates: list, more):
     format = "%Y-%m-%d"
     dates = list(map(lambda date: datetime.strptime(date, format), dates))
-    if more:
-        return dates[0] > dates[1]
-    else:
-        return dates[0] < dates[1]
+    return dates[0] >= dates[1]
 
 def extract_students(teacher, links):
     ...
