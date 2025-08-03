@@ -34,6 +34,7 @@ async def main():
             #await asyncio.sleep(0.5)
         #async for teacher in teachers:
         #async def count_students(client, teacher):
+          print(teacher)
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
           #print(teacher["id"], len(teacher["units"]))
           teacher["students"] = 0
@@ -125,6 +126,7 @@ def unique_students_count(links):
 
 def unique_left_count(links, date_from, date_to):
     count = 0
+    left = []
     students = set(list(map(lambda link: link["StudentClientId"], links)))
     print(len(students))
     for student in students:
@@ -133,6 +135,8 @@ def unique_left_count(links, date_from, date_to):
         #print(student, units)
         if False not in units:
             count += 1;
+            left.append(student)
+    print(left)
     return count
 
         
