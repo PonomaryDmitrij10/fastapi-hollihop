@@ -41,8 +41,8 @@ async def main():
           for unit in teacher["units"]:
             students_count = list(filter(lambda link: link["EdUnitId"] == unit, links))
             left_count = list(filter(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from]) and check_dates([date_to, link["EndDate"]]), students_count))
-            teacher["students"] += len(students_count)
-            teacher["left"] += len(left_count)
+            teacher["students"] += unique_students_count(students_count)
+            teacher["left"] += unique_students_count(left_count)
           #print(teacher["name"], teacher["students"]) 
           output.append([teacher["name"], teacher["students"], teacher["left"] ])
         #coros = [count_students(client, teacher) for teacher in teachers]
@@ -116,3 +116,7 @@ def check_dates(dates: list):
 
 def extract_students(teacher, links):
     ...
+
+def unique_students_count(links):
+    students = list(map(lambda link: link["StudentClientId"], links))
+    return len(set(students))
