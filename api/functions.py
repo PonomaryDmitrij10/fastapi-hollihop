@@ -37,10 +37,14 @@ async def main():
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
           print(teacher["id"], len(teacher["units"]))
           teacher["students"] = 0
+          teacher["left"] = 0
           for unit in teacher["units"]:
-            teacher["students"] += len(list(filter(lambda link: link["EdUnitId"] == unit, links)))
+            students_count = list(filter(lambda link: link["EdUnitId"] == unit, links))
+            left_count = list(filter(lambda link: check_dates([link["EndDate"], date_from, True), links))
+            teacher["students"] += len(students_count)
+            teacher["left"] += len(left_count)
           #print(teacher["name"], teacher["students"]) 
-          output.append([teacher["name"], teacher["students"]])
+          output.append([teacher["name"], teacher["students"], teacher["left"] ])
         #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
         print(output)
@@ -100,7 +104,7 @@ async def get_all_student_unit_links(client, date_from, date_to, skip):
     response = response.json()
     links += response["EdUnitStudents"]
     print("links count: ", len(links))
-    if len(links) % 1000 == 0:
+    if len(links) % 1000 == 0 and len(links) > 0:
         output = await get_all_student_unit_links(client, date_from, date_to, skip + 1000)
         links += output
     return links
@@ -112,3 +116,6 @@ def check_dates(dates: list, more: bool):
         return dates[0] > dates[1]
     else:
         return dates[0] < dates[1]
+
+def extract_students(teacher, links):
+    
