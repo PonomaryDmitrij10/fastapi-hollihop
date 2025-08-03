@@ -35,7 +35,7 @@ async def main():
         #async for teacher in teachers:
         #async def count_students(client, teacher):
           teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
-          print(teacher["id"], len(teacher["units"]))
+          #print(teacher["id"], len(teacher["units"]))
           teacher["students"] = 0
           teacher["left"] = 0
           teacher["links"] = []
@@ -60,7 +60,8 @@ async def get_teachers(client):
     teachers = list(filter(lambda teacher: not teacher["Fired"], response["Teachers"]))
     teachers = list(map(lambda teacher: {"id": teacher["Id"], "name": teacher["LastName"]} , teachers))
     for teacher in teachers:
-      print(teacher)
+      #print(teacher)
+      ...
     print('finished.')
     return teachers
     #connector = response["result"]["entity_id"].split("|")[0]
@@ -75,7 +76,7 @@ async def get_units(client, teacher, date_from, date_to):
   response = response.json()
   units = response["EdUnits"]
   units = list(map(lambda unit: unit["Id"],  response["EdUnits"]))
-  print(len(units))
+  #print(len(units))
   return units
 
 async def get_students(units):
@@ -125,9 +126,11 @@ def unique_students_count(links):
 def unique_left_count(links, date_from, date_to):
     count = 0
     students = set(list(map(lambda link: link["StudentClientId"], links)))
+    print(len(students))
     for student in students:
         units = list(filter(lambda link: link["StudentClientId"] == student, links))
         units = list(map(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from]) and check_dates([date_to, link["EndDate"]]), links))
+        print(student, units)
         if False not in units:
             count += 1;
     return count
