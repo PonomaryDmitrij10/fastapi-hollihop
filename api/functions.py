@@ -118,4 +118,4 @@ def check_dates(dates: list, more: bool):
         return dates[0] < dates[1]
 
 def extract_students(teacher, links):
-    
+    ...
