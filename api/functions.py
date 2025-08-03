@@ -109,7 +109,7 @@ async def get_all_student_unit_links(client, date_from, date_to, skip):
         links += output
     return links
 
-def check_dates(dates: list, more):
+def check_dates(dates: list):
     format = "%Y-%m-%d"
     dates = list(map(lambda date: datetime.strptime(date, format), dates))
     return dates[0] >= dates[1]
