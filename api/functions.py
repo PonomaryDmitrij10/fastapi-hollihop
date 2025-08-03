@@ -40,7 +40,7 @@ async def main():
           teacher["left"] = 0
           teacher["links"] = []
           for unit in teacher["units"]:
-            teacher["links"].append(list(filter(lambda link: link["EdUnitId"] == unit, links)))
+            teacher["links"] += list(filter(lambda link: link["EdUnitId"] == unit, links))
             #left_count = list(filter(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from]) and check_dates([date_to, link["EndDate"]]), students_count))
           teacher["students"] = unique_students_count(teacher["links"])
           teacher["left"] = unique_left_count(teacher["links"], date_from, date_to)
