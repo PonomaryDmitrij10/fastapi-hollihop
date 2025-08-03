@@ -40,7 +40,7 @@ async def main():
           teacher["left"] = 0
           for unit in teacher["units"]:
             students_count = list(filter(lambda link: link["EdUnitId"] == unit, links))
-            left_count = list(filter(lambda link: check_dates([link["EndDate"], date_from], True), links))
+            left_count = list(filter(lambda link: False if link["EndDate"] == None else check_dates([link["EndDate"], date_from], True) if , links))
             teacher["students"] += len(students_count)
             teacher["left"] += len(left_count)
           #print(teacher["name"], teacher["students"]) 
