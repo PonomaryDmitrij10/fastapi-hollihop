@@ -129,7 +129,7 @@ def unique_left_count(links, date_from, date_to):
     print(len(students))
     for student in students:
         units = list(filter(lambda link: link["StudentClientId"] == student, links))
-        units = list(map(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from]) and check_dates([date_to, link["EndDate"]]), links))
+        units = list(map(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from]) and check_dates([date_to, link["EndDate"]]), units))
         print(student, units)
         if False not in units:
             count += 1;
