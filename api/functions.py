@@ -139,4 +139,9 @@ def unique_left_count(links, date_from, date_to):
     print(left)
     return count
 
-        
+def check_unit(unit, teacher):
+    schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
+    for item in schedule_items:
+        if item["BeginDate"] != item["EndDate"]:
+            return True
+    return False
