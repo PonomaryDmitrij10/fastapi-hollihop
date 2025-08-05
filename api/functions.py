@@ -72,7 +72,8 @@ async def get_units(client, teacher, date_from, date_to):
   def check_unit(unit):
     schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
     for item in schedule_items:
-        if item["BeginDate"] != item["EndDate"]:
+        if "EndDate" in item:
+          if item["BeginDate"] != item["EndDate"]:
             return True
     return False
   path = api + "GetEdUnits"
