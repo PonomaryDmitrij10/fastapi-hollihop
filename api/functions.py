@@ -66,6 +66,8 @@ async def get_teachers(client):
 async def get_units(client, teacher, date_from, date_to):
   def check_unit(unit):
     not_related_items = list(filter(lambda item: item["TeacherId"] != teacher, unit["ScheduleItems"]))
+    not_related_items = list(map(lambda item: item["Id"], not_related_items))
+    print(not_related_items)
     if len(not_related_items) == 0:
         return True
     schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
