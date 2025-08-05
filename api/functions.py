@@ -77,6 +77,8 @@ async def get_units(client, teacher, date_from, date_to):
           if item["BeginDate"] != item["EndDate"]:
             print(item["BeginDate"])
             return True
+        else:
+            return True
     return False
   path = api + "GetEdUnits"
   params["teacherId"] = teacher
