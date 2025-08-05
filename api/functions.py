@@ -86,7 +86,7 @@ async def get_units(client, teacher, date_from, date_to):
   print("units: ", len(units))
   units = list(filter(check_unit, units))
   print("checked units: ", len(units))
-  units = list(map(lambda unit: unit["Id"],  units)
+  units = list(map(lambda unit: unit["Id"],  units))
   
   #print(len(units))
   return units
