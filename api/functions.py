@@ -69,6 +69,12 @@ async def get_teachers(client):
     #return {"chat": str(response["result"]["id"]), "user": str(response["result"]["owner"]), "connector": connector}
 
 async def get_units(client, teacher, date_from, date_to):
+  def check_unit(unit):
+    schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
+    for item in schedule_items:
+        if item["BeginDate"] != item["EndDate"]:
+            return True
+    return False
   path = api + "GetEdUnits"
   params["teacherId"] = teacher
   params["dateFrom"] = date_from
@@ -76,7 +82,9 @@ async def get_units(client, teacher, date_from, date_to):
   response = await client.get(path, params=params)
   response = response.json()
   units = response["EdUnits"]
+  units = list(filter(check_unit, units))
   units = list(map(lambda unit: unit["Id"],  response["EdUnits"]))
+  
   #print(len(units))
   return units
 
@@ -139,9 +147,4 @@ def unique_left_count(links, date_from, date_to):
     print(left)
     return count
 
-def check_unit(unit, teacher):
-    schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
-    for item in schedule_items:
-        if item["BeginDate"] != item["EndDate"]:
-            return True
-    return False
+
