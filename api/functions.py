@@ -82,10 +82,11 @@ async def get_units(client, teacher, date_from, date_to):
   response = await client.get(path, params=params)
   response = response.json()
   units = response["EdUnits"]
+  units = list(set(units))
   print("units: ", len(units))
   units = list(filter(check_unit, units))
   print("checked units: ", len(units))
-  units = list(map(lambda unit: unit["Id"],  response["EdUnits"]))
+  units = list(map(lambda unit: unit["Id"],  units)
   
   #print(len(units))
   return units
