@@ -87,7 +87,7 @@ async def get_units(client, teacher, date_from, date_to):
   def check_unit(unit):
     not_related_items = list(filter(lambda item: item["TeacherId"] != teacher, unit["ScheduleItems"]))
     not_related_items = list(map(lambda item: item["Id"], not_related_items))
-    print(not_related_items)
+    #print(not_related_items)
     if len(not_related_items) == 0:
         return True
     schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
@@ -109,9 +109,9 @@ async def get_units(client, teacher, date_from, date_to):
   units = response["EdUnits"]
   #units = list(set(units))
   units = list({unit['Id']:unit for unit in units}.values())
-  print("units: ", len(units))
+  #print("units: ", len(units))
   units = list(filter(check_unit, units))
-  print("checked units: ", len(units))
+  #print("checked units: ", len(units))
   units = list(map(lambda unit: unit["Id"],  units))
   
   #print(len(units))
@@ -165,7 +165,7 @@ def unique_left_count(links, date_from, date_to):
     count = 0
     left = []
     students = set(list(map(lambda link: link["StudentClientId"], links)))
-    print(len(students))
+    #print(len(students))
     for student in students:
         units = list(filter(lambda link: link["StudentClientId"] == student, links))
         units = list(map(lambda link: False if "EndDate" not in link else check_dates([link["EndDate"], date_from]) and check_dates([date_to, link["EndDate"]]), units))
@@ -173,7 +173,7 @@ def unique_left_count(links, date_from, date_to):
         if False not in units:
             count += 1;
             left.append(student)
-    print(left)
+    #print(left)
     return count
 
 def get_dates(month):
