@@ -1,4 +1,4 @@
-from urllib.parse import unquote
+lfrom urllib.parse import unquote
 import httpx
 import re
 import asyncio
@@ -23,13 +23,19 @@ connection_string = os.getenv("postgresql")
 load_dotenv(dotenv_path=".env.local")
 #redis_url = os.getenv("REDIS_URL")
 
-async def get_month_data(client, month, teachers):
+async def main():
+    current_month = datetime.now().month
     async with httpx.AsyncClient() as client:
-        
-        date_from = "2025-07-01"
-        date_to = "2025-07-31"
-        output = []
         teachers = await get_teachers(client)
+        output = list(map(lambda teacher: teacher["name"]))
+        for month in range(1, current_month):
+            data = 
+async def get_month_data(client, month, teachers):  
+        dates = get_dates(month)
+        date_from = dates["from"]
+        date_to = date["to"]
+        data = {}
+        
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         for teacher in teachers:
@@ -45,10 +51,10 @@ async def get_month_data(client, month, teachers):
           teacher["students"] = unique_students_count(teacher["links"])
           teacher["left"] = unique_left_count(teacher["links"], date_from, date_to)
           #print(teacher["name"], teacher["students"]) 
-          output.append([teacher["name"], teacher["students"], teacher["left"] ])
+          data[teacher["name"]] = [teacher["students"], teacher["left"]]
         #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
-        print(output)
+        print(data)
         print("main finished.")
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
@@ -167,7 +173,7 @@ def get_dates(month):
     #date = list(map(lambda unit: int(unit), date.split('-')))
     _, day = calendar.monthrange(year, month)
     date_to = datetime(year, month, day).strftime("%Y-%m-%d")
-    return [date_from, date_to]
+    return {"from": date_from, "to":date_to}
 
 async def send_data(client, data):
     
