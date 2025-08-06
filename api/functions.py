@@ -1,4 +1,4 @@
-lfrom urllib.parse import unquote
+from urllib.parse import unquote
 import httpx
 import re
 import asyncio
@@ -6,6 +6,7 @@ from datetime import datetime
 #import asyncpg
 import time
 import os
+import locale
 #import datetime
 import calendar
 import redis
@@ -26,10 +27,14 @@ load_dotenv(dotenv_path=".env.local")
 async def main():
     current_month = datetime.now().month
     async with httpx.AsyncClient() as client:
+        
         teachers = await get_teachers(client)
-        output = list(map(lambda teacher: teacher["name"]))
+        output = list(map(lambda teacher: [teacher["id"], teacher["name"]]))
         for month in range(1, current_month):
-            data = 
+            dates = get_dates(month)
+            data = await get_month_data(client, teachers, dates["from"], dates["to"])
+            output = list(map(lambda row, data_item: row + data_item[row[0]], output, data))
+                                                                
 async def get_month_data(client, month, teachers):  
         dates = get_dates(month)
         date_from = dates["from"]
@@ -51,11 +56,12 @@ async def get_month_data(client, month, teachers):
           teacher["students"] = unique_students_count(teacher["links"])
           teacher["left"] = unique_left_count(teacher["links"], date_from, date_to)
           #print(teacher["name"], teacher["students"]) 
-          data[teacher["name"]] = [teacher["students"], teacher["left"]]
+          data[teacher["id"]] = [teacher["students"], teacher["left"]]
         #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
         print(data)
         print("main finished.")
+        return data
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
 
@@ -167,13 +173,18 @@ def unique_left_count(links, date_from, date_to):
     return count
 
 def get_dates(month):
+    locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
     month = int(month)
     year = datetime.now().year
     date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
     #date = list(map(lambda unit: int(unit), date.split('-')))
     _, day = calendar.monthrange(year, month)
     date_to = datetime(year, month, day).strftime("%Y-%m-%d")
-    return {"from": date_from, "to":date_to}
+    title = datetime(year, month, 1).strftime("%B %Y")
+    return {"from": date_from, "to": date_to, "title": title}
 
 async def send_data(client, data):
+    ...
+
+async def get_month_title(month):
     
