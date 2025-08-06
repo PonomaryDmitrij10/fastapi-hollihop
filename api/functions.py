@@ -38,13 +38,13 @@ async def main():
             output = list(map(lambda row, data_item: row + data_item[row[0]], output, data))
         print(output)    
         
-async def get_month_data(month):  
+async def get_month_data(month): 
+    teachers = await get_teachers()
     async with httpx.AsyncClient() as client:
         dates = get_dates(month)
         date_from = dates["from"]
         date_to = dates["to"]
         output = [["", dates["title"], ""], ["Учеников", "Откол", "% откола"]]
-        teachers = await get_teachers(client)
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         for teacher in teachers:
@@ -71,7 +71,8 @@ async def get_month_data(month):
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
 
-async def get_teachers(client = httpx.Client()):
+async def get_teachers():
+  async with httpx.AsyncClient() as client:
     path = api + "getteachers"
     response = await client.get(path, params=params)
     response = response.json()
