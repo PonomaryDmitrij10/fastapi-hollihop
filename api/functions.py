@@ -177,7 +177,7 @@ def unique_left_count(links, date_from, date_to):
     return count
 
 def get_dates(month):
-    locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+    locale.setlocale(locale.LC_TIME, 'ru_RU')
     month = int(month)
     year = datetime.now().year
     date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
