@@ -38,12 +38,13 @@ async def main():
             output = list(map(lambda row, data_item: row + data_item[row[0]], output, data))
         print(output)    
         
-async def get_month_data(client, teachers, date_from, date_to):  
-        #dates = get_dates(month)
-        #date_from = dates["from"]
-        #date_to = date["to"]
-        data = {}
-        
+async def get_month_data(month):  
+    async with httpx.AsyncClient() as client:
+        dates = get_dates(month)
+        date_from = dates["from"]
+        date_to = date["to"]
+        output = [["", dates["title"], ""], ["Учеников", "Откол", "% откола"]]
+        teachers = await get_teachers(client)
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         for teacher in teachers:
