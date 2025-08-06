@@ -60,8 +60,10 @@ async def get_month_data(month):
           teacher["students"] = unique_students_count(teacher["links"])
           teacher["left"] = unique_left_count(teacher["links"], date_from, date_to)
           #print(teacher["name"], teacher["students"]) 
-          output.append([teacher["students"], teacher["left"], f"{teacher["left"]/teacher["students"]*100:.2f}%"])
-        #coros = [count_students(client, teacher) for teacher in teachers]
+          percent = "0.0" if not teacher["students"] else f"{teacher["left"]/teacher["students"]*100:.2f}%"
+            
+          output.append([teacher["students"], teacher["left"], percent])
+                               #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
         #print(data)
         print("main finished.")
