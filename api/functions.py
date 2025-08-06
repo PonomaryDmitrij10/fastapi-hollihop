@@ -42,7 +42,7 @@ async def get_month_data(month):
     async with httpx.AsyncClient() as client:
         dates = get_dates(month)
         date_from = dates["from"]
-        date_to = date["to"]
+        date_to = dates["to"]
         output = [["", dates["title"], ""], ["Учеников", "Откол", "% откола"]]
         teachers = await get_teachers(client)
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
@@ -185,7 +185,7 @@ def get_dates(month):
     _, day = calendar.monthrange(year, month)
     date_to = datetime(year, month, day).strftime("%Y-%m-%d")
     title = datetime(year, month, 1).strftime("%B %Y")
-    return {"from": date_from, "to": date_to, "title": title}
+    return {"from": date_from, "to": date_to, "title": title, "year": year}
 
 async def send_data(client, data):
     ...
