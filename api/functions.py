@@ -71,7 +71,7 @@ async def get_month_data(month):
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
 
-async def get_teachers(client):
+async def get_teachers(client = httpx.Client()):
     path = api + "getteachers"
     response = await client.get(path, params=params)
     response = response.json()
