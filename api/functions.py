@@ -6,6 +6,8 @@ from datetime import datetime
 #import asyncpg
 import time
 import os
+#import datetime
+import calendar
 import redis
 import emoji
 import random 
@@ -14,14 +16,16 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env")
 api = os.getenv("api")
 key = os.getenv("key")
+gs_endpoint = os.getenv("gs_endpoint")
 params = {"authkey":key}
 connection_string = os.getenv("postgresql")
 #slist = os.getenv("list").split(',')
 load_dotenv(dotenv_path=".env.local")
 #redis_url = os.getenv("REDIS_URL")
 
-async def main():
+async def get_month_data(client, month, teachers):
     async with httpx.AsyncClient() as client:
+        
         date_from = "2025-07-01"
         date_to = "2025-07-31"
         output = []
@@ -156,4 +160,14 @@ def unique_left_count(links, date_from, date_to):
     print(left)
     return count
 
+def get_dates(month):
+    month = int(month)
+    year = datetime.now().year
+    date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
+    #date = list(map(lambda unit: int(unit), date.split('-')))
+    _, day = calendar.monthrange(year, month)
+    date_to = datetime(year, month, day).strftime("%Y-%m-%d")
+    return [date_from, date_to]
 
+async def send_data(client, data):
+    
