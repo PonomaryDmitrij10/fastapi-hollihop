@@ -60,12 +60,12 @@ async def get_month_data(month):
           teacher["students"] = unique_students_count(teacher["links"])
           teacher["left"] = unique_left_count(teacher["links"], date_from, date_to)
           #print(teacher["name"], teacher["students"]) 
-          data[teacher["id"]] = [teacher["students"], teacher["left"], f"{teacher["left"]/teacher["students"]*100:.2f}%"]
+          output.append([teacher["students"], teacher["left"], f"{teacher["left"]/teacher["students"]*100:.2f}%"])
         #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
         #print(data)
         print("main finished.")
-        return data
+        return output
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
         #units = list(filter(lambda unit: unit
 
