@@ -29,16 +29,19 @@ async def main():
     async with httpx.AsyncClient() as client:
         
         teachers = await get_teachers(client)
-        output = list(map(lambda teacher: [teacher["id"], teacher["name"]]))
+        output = ["Период", "Дата"] + list(map(lambda teacher: [teacher["id"], teacher["name"]]))
         for month in range(1, current_month):
             dates = get_dates(month)
             data = await get_month_data(client, teachers, dates["from"], dates["to"])
+            output[0].extend(["", dates["title"], ""])
+            output[1].extend(["Учеников", "Откол", "% откола"])
             output = list(map(lambda row, data_item: row + data_item[row[0]], output, data))
-                                                                
-async def get_month_data(client, month, teachers):  
-        dates = get_dates(month)
-        date_from = dates["from"]
-        date_to = date["to"]
+        print(output)    
+        
+async def get_month_data(client, teachers, date_from, date_to):  
+        #dates = get_dates(month)
+        #date_from = dates["from"]
+        #date_to = date["to"]
         data = {}
         
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
@@ -56,10 +59,10 @@ async def get_month_data(client, month, teachers):
           teacher["students"] = unique_students_count(teacher["links"])
           teacher["left"] = unique_left_count(teacher["links"], date_from, date_to)
           #print(teacher["name"], teacher["students"]) 
-          data[teacher["id"]] = [teacher["students"], teacher["left"]]
+          data[teacher["id"]] = [teacher["students"], teacher["left"], f"{teacher["left"]/teacher["students"]*100:.2f}%"]
         #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
-        print(data)
+        #print(data)
         print("main finished.")
         return data
         #units = await get_units(client, 1418, "2025-01-01","2025-08-01")
