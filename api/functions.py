@@ -42,9 +42,8 @@ async def main():
         print(output)  
         return output
         
-async def get_month_data(month, teachers): 
-    
-    async with httpx.AsyncClient() as client:
+async def get_month_data(client, month, teachers):   
+        #async with httpx.AsyncClient() as client:
         dates = get_dates(month)
         date_from = dates["from"]
         date_to = dates["to"]
