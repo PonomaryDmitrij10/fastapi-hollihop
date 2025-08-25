@@ -33,10 +33,14 @@ async def main():
         for month in range(1, current_month):
             dates = get_dates(month)
             data = await get_month_data(client, teachers)#, dates["from"], dates["to"])
-            output[0].extend(["", dates["title"], ""])
-            output[1].extend(["Учеников", "Откол", "% откола"])
-            output = list(map(lambda row, data_item: row + data_item[row[0]], output, data))
-        print(output)    
+            print(data)
+            for i in range(len(output)):
+                output[i].extend(data[i])
+            #output[0].extend(["", dates["title"], ""])
+            #output[1].extend(["Учеников", "Откол", "% откола"])
+            #output = list(map(lambda row, data_item: row + data_item[row[0]], output, data))
+        print(output)  
+        return output
         
 async def get_month_data(month, teachers): 
     
