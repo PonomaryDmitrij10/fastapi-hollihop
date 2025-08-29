@@ -42,13 +42,13 @@ async def main():
         print(output)  
         return output
         
-async def get_month_data(client, month, teachers):   
-        #async with httpx.AsyncClient() as client:
+async def get_month_data(month):   
+    async with httpx.AsyncClient() as client:
         dates = get_dates(month)
         date_from = dates["from"]
         date_to = dates["to"]
-        output = [["", dates["title"], ""], ["Учеников", "Откол", "% откола"]]
-        #teachers = await get_teachers(client)
+        output = {"heading":["", dates["title"], ""], ["Учеников", "Откол", "% откола"]}
+        teachers = await get_teachers(client)
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
         students = await get_all_students(client, 0)
         for teacher in teachers:
@@ -66,7 +66,7 @@ async def get_month_data(client, month, teachers):
           #print(teacher["name"], teacher["students"]) 
           percent = "0.0" if not teacher["students"] else f"{teacher["left"]/teacher["students"]*100:.2f}%"
             
-          output.append([teacher["students"], teacher["left"], percent])
+          output[teacher["id"]] = {teacher["name"]:[teacher["students"], teacher["left"], percent]}
                                #coros = [count_students(client, teacher) for teacher in teachers]
         #asyncio.gather(*coros)
         #print(data)
