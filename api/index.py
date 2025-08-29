@@ -12,7 +12,7 @@ app = FastAPI()
 @app.get('/api/data')
 async def get_data(request: Request, month: int):
     try:
-        output = await main()
+        output = await get_month_data(month)
         return output
     except Exception as e:
         print(e)
