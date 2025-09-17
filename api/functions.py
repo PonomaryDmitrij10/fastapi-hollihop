@@ -22,24 +22,33 @@ async def get_month_data(month: int):
         date_from = dates["from"]
         date_to = dates["to"]
 
+        print(f"📅 Получаем данные за {dates['title']} ({date_from} → {date_to})")
+
         teachers = await get_teachers(client)
+        print(f"👨‍🏫 Найдено преподавателей: {len(teachers)}")
+
         links = await get_all_student_unit_links(client, date_from, date_to, 0)
+        print(f"🔗 Всего связей EdUnit-Student: {len(links)}")
+
         students = await get_all_students(client, 0)
+        print(f"👨‍🎓 Всего студентов: {len(students)}")
 
         # Заголовки таблицы
         output = [["Преподаватель", "Ученики", "Откол", "% откола"]]
 
         for teacher in teachers:
             teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
+            print(f"➡️ {teacher['name']} → найдено юнитов: {len(teacher['units'])}")
+
             teacher["links"] = []
             for unit in teacher["units"]:
-                teacher["links"] += list(
-                    filter(lambda link: link["EdUnitId"] == unit, links)
-                )
+                teacher["links"] += list(filter(lambda link: link["EdUnitId"] == unit, links))
 
             students_count = unique_students_count(teacher["links"])
             left_count = unique_left_count(teacher["links"], date_from, date_to)
             percent = "0.0%" if not students_count else f"{left_count / students_count * 100:.2f}%"
+
+            print(f"   👥 {teacher['name']} → Ученики={students_count}, Откол={left_count}, %={percent}")
 
             output.append([teacher["name"], students_count, left_count, percent])
 
@@ -56,7 +65,6 @@ async def get_teachers(client):
     response = response.json()
     teachers = list(filter(lambda teacher: not teacher["Fired"], response["Teachers"]))
     teachers = list(map(lambda teacher: {"id": teacher["Id"], "name": teacher["LastName"]}, teachers))
-    print(f"📌 Нашли преподавателей: {len(teachers)}")
     return teachers
 
 
@@ -94,7 +102,6 @@ async def get_all_students(client, skip):
     response = await client.get(path, params=params)
     response = response.json()
     students += response["Students"]
-    print("👨‍🎓 students count:", len(students))
     if len(students) % 1000 == 0 and len(students) > 0:
         output = await get_all_students(client, skip + 1000)
         students += output
@@ -110,7 +117,6 @@ async def get_all_student_unit_links(client, date_from, date_to, skip):
     response = await client.get(path, params=params)
     response = response.json()
     links += response["EdUnitStudents"]
-    print("🔗 links count:", len(links))
     if len(links) % 1000 == 0 and len(links) > 0:
         output = await get_all_student_unit_links(client, date_from, date_to, skip + 1000)
         links += output
