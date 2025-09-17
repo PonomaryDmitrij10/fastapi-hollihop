@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from api.functions import get_teachers, get_month_data
 import httpx
+import traceback
 
 app = FastAPI()
 
@@ -9,10 +10,12 @@ app = FastAPI()
 async def get_data(request: Request, month: int):
     try:
         output = await get_month_data(month)
-        return output   # ✅ возвращаем словарь с данными
+        return output   # ✅ возвращаем данные в виде массива массивов
     except Exception as e:
-        print("❌ Ошибка в get_data:", e)
-        return {"error": str(e)}   # ✅ возвращаем текст ошибки в JSON
+        err = traceback.format_exc()   # полный текст ошибки
+        print("❌ Ошибка в get_data:", err)
+        return {"error": err}          # ✅ вернём строку с ошибкой в JSON
+
 
 # ===== Эндпоинт преподавателей =====
 @app.get("/api/teachers")
@@ -23,5 +26,6 @@ async def get_teachers_list(request: Request):
             teachers = list(map(lambda teacher: teacher["name"], teachers))
             return teachers
     except Exception as e:
-        print("❌ Ошибка в get_teachers:", e)
-        return {"error": str(e)}
+        err = traceback.format_exc()
+        print("❌ Ошибка в get_teachers:", err)
+        return {"error": err}
