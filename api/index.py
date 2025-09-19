@@ -8,10 +8,10 @@ app = FastAPI()
 
 # ===== Эндпоинт статистики =====
 @app.get("/api/data")
-async def get_data(request: Request, month: int):
+async def get_data(request: Request, month: int, year: int):
     try:
-        print(f"📅 Запрос данных за месяц: {month}")
-        output = await get_month_data(month)
+        print(f"📅 Запрос данных за {month}/{year}")
+        output = await get_month_data(month, year)
         print("✅ Успешно получили данные")
         return output
     except Exception as e:
