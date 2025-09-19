@@ -1,4 +1,21 @@
+from urllib.parse import unquote
+import httpx
+from datetime import datetime
+import os
+import calendar
+from dotenv import load_dotenv
+
+# Загружаем .env
+load_dotenv(dotenv_path=".env")
+api = os.getenv("api")
+key = os.getenv("key")
+params = {"authkey": key}
+load_dotenv(dotenv_path=".env.local")
+
+
+# =======================
 # Основная функция
+# =======================
 async def get_month_data(month: int, year: int):
     async with httpx.AsyncClient() as client:
         dates = get_dates(month, year)
@@ -36,14 +53,64 @@ async def get_month_data(month: int, year: int):
             output.append([teacher["name"], students_count, left_count, percent])
 
         print("✅ get_month_data finished")
-        return output
+        return output   # <-- возвращаем готовую таблицу
 
 
-def get_dates(month: int, year: int):
-    month = int(month)
-    year = int(year)
-    date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
-    _, day = calendar.monthrange(year, month)
-    date_to = datetime(year, month, day).strftime("%Y-%m-%d")
-    title = datetime(year, month, 1).strftime("%B %Y")
-    return {"from": date_from, "to": date_t
+# =======================
+# Служебные функции
+# =======================
+async def get_teachers(client):
+    path = api + "getteachers"
+    response = await client.get(path, params=params)
+    response = response.json()
+    teachers = list(filter(lambda teacher: not teacher["Fired"], response["Teachers"]))
+    teachers = list(map(lambda teacher: {"id": teacher["Id"], "name": teacher["LastName"]}, teachers))
+    return teachers
+
+
+async def get_units(client, teacher, date_from, date_to):
+    def check_unit(unit):
+        not_related_items = list(filter(lambda item: item["TeacherId"] != teacher, unit["ScheduleItems"]))
+        if len(not_related_items) == 0:
+            return True
+        schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
+        for item in schedule_items:
+            if "EndDate" in item:
+                if item["BeginDate"] != item["EndDate"]:
+                    return True
+            else:
+                return True
+        return False
+
+    path = api + "GetEdUnits"
+    params["teacherId"] = teacher
+    params["dateFrom"] = date_from
+    params["dateTo"] = date_to
+    response = await client.get(path, params=params)
+    response = response.json()
+    units = response["EdUnits"]
+    units = list({unit["Id"]: unit for unit in units}.values())  # уникальные
+    units = list(filter(check_unit, units))
+    units = list(map(lambda unit: unit["Id"], units))
+    return units
+
+
+async def get_all_students(client, skip):
+    students = []
+    path = api + "GetStudents"
+    params["skip"] = skip
+    response = await client.get(path, params=params)
+    response = response.json()
+    students += response["Students"]
+    if len(students) % 1000 == 0 and len(students) > 0:
+        output = await get_all_students(client, skip + 1000)
+        students += output
+    return students
+
+
+async def get_all_student_unit_links(client, date_from, date_to, skip):
+    links = []
+    path = api + "GetEdUnitStudents"
+    params["skip"] = skip
+    params["dateFrom"] = date_from
+    params["da]()
