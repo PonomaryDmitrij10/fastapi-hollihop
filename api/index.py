@@ -1,15 +1,12 @@
 from fastapi import FastAPI, Request
-from api.functions import get_teachers, get_month_data
-import httpx
-import traceback
-import sys
+from api.functions import get_month_data, get_teachers
+import traceback, sys
 
 app = FastAPI()
 
 @app.get("/api/data")
-async def get_data(request: Request, month: int, year: int):
+async def get_data(month: int, year: int = None):
     try:
-        print(f"📅 Запрос данных за месяц: {month}, год: {year}")
         output = await get_month_data(month)
         return output
     except Exception as e:
@@ -17,14 +14,11 @@ async def get_data(request: Request, month: int, year: int):
         err = "".join(traceback.format_exception(err_type, err_value, err_tb))
         return {"error": err}
 
-
 @app.get("/api/teachers")
-async def get_teachers_list(request: Request):
+async def get_teachers_list():
     try:
-        async with httpx.AsyncClient() as client:
-            teachers = await get_teachers(client)
-            teachers = [teacher["name"] for teacher in teachers]
-            return teachers
+        teachers = await get_teachers(None)
+        return teachers
     except Exception as e:
         err_type, err_value, err_tb = sys.exc_info()
         err = "".join(traceback.format_exception(err_type, err_value, err_tb))
