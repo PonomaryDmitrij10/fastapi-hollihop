@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Request
-from api.functions import get_teachers, get_month_data
-import httpx
+from api.functions import get_month_data
 import traceback
 import sys
 
@@ -18,19 +17,4 @@ async def get_data(request: Request, month: int, year: int):
         err_type, err_value, err_tb = sys.exc_info()
         err = "".join(traceback.format_exception(err_type, err_value, err_tb))
         print("❌ Полная ошибка в get_data:\n", err)
-        return {"error": err}
-
-
-# ===== Эндпоинт преподавателей =====
-@app.get("/api/teachers")
-async def get_teachers_list(request: Request):
-    try:
-        async with httpx.AsyncClient() as client:
-            teachers = await get_teachers(client)
-            teachers = list(map(lambda teacher: teacher["name"], teachers))
-            return teachers
-    except Exception as e:
-        err_type, err_value, err_tb = sys.exc_info()
-        err = "".join(traceback.format_exception(err_type, err_value, err_tb))
-        print("❌ Полная ошибка в get_teachers:\n", err)
         return {"error": err}
