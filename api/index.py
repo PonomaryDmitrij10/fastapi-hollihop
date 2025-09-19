@@ -16,7 +16,8 @@ async def ping():
 @app.get("/api/data")
 async def get_data(request: Request, month: int, year: int = 2025):
     try:
-        output = await get_month_data(month)
+        # передаём и month, и year
+        output = await get_month_data(month, year)
         if not output or len(output) == 1:  # только заголовки, данных нет
             return {"error": f"Нет данных за {month}/{year}"}
         return {"data": output}
