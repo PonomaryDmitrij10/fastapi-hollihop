@@ -5,11 +5,6 @@ import os
 import calendar
 from dotenv import load_dotenv
 
-# =======================
-# Настройки
-# =======================
-TEST_MODE = False   # ← переключай здесь (True = тестовые данные, False = боевой режим)
-
 # Загружаем .env
 load_dotenv(dotenv_path=".env")
 api = os.getenv("api")
@@ -25,21 +20,13 @@ async def get_month_data(month: int, year: int | None = None):
     if year is None:
         year = datetime.now().year
 
-    dates = get_dates(month, year)
-    date_from = dates["from"]
-    date_to = dates["to"]
+    # диапазон дат для API
+    date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
+    _, last_day = calendar.monthrange(year, month)
+    date_to = datetime(year, month, last_day).strftime("%Y-%m-%d")
 
-    print(f"📅 Получаем данные за {dates['title']} ({date_from} → {date_to})")
+    print(f"📅 Получаем данные за {month}/{year}: {date_from} → {date_to}")
 
-    # ===== ТЕСТОВЫЙ РЕЖИМ =====
-    if TEST_MODE:
-        output = [["Преподаватель", "Ученики", "Откол", "% откола"]]
-        output.append(["Иванова", 10, 2, "20%"])
-        output.append(["Петров", 8, 1, "12.5%"])
-        output.append(["СяоДин", 15, 0, "0%"])
-        return output
-
-    # ===== БОЕВОЙ РЕЖИМ =====
     async with httpx.AsyncClient() as client:
         teachers = await get_teachers(client)
         print(f"👨‍🏫 Найдено преподавателей: {len(teachers)}")
@@ -68,6 +55,10 @@ async def get_month_data(month: int, year: int | None = None):
             print(f"   👥 {teacher['name']} → Ученики={students_count}, Откол={left_count}, %={percent}")
 
             output.append([teacher["name"], students_count, left_count, percent])
+
+        # Если данных нет → хотя бы заглушка
+        if len(output) == 1:
+            output.append(["нет данных", 0, 0, "0%"])
 
         print("✅ get_month_data finished")
         return output
@@ -168,13 +159,3 @@ def unique_left_count(links, date_from, date_to):
         if False not in units:
             count += 1
     return count
-
-
-def get_dates(month, year):
-    month = int(month)
-    year = int(year)
-    date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
-    _, day = calendar.monthrange(year, month)
-    date_to = datetime(year, month, day).strftime("%Y-%m-%d")
-    title = datetime(year, month, 1).strftime("%B %Y")
-    return {"from": date_from, "to": date_to, "title": title, "year": year}
