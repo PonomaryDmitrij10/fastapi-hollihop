@@ -44,6 +44,8 @@ async def get_month_data(month: int, year: int):
             for unit in teacher["units"]:
                 teacher["links"] += list(filter(lambda link: link["EdUnitId"] == unit, links))
 
+            print(f"   🔍 Links for {teacher['name']}: {teacher['links']}")
+
             students_count = unique_students_count(teacher["links"])
             left_count = unique_left_count(teacher["links"], date_from, date_to)
             percent = "0.0%" if not students_count else f"{left_count / students_count * 100:.2f}%"
@@ -54,6 +56,7 @@ async def get_month_data(month: int, year: int):
 
         # ✅ Если данных нет, возвращаем "нет данных"
         if len(output) == 1:
+            print("⚠️ Нет данных: ни одного юнита/связи не найдено")
             output.append(["нет данных", 0, 0, "0%"])
 
         print("✅ get_month_data finished")
