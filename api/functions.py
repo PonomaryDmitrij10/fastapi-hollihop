@@ -16,18 +16,14 @@ load_dotenv(dotenv_path=".env.local")
 # =======================
 # Основная функция
 # =======================
-async def get_month_data(month: int, year: int | None = None):
-    if year is None:
-        year = datetime.now().year
-
-    # диапазон дат для API
-    date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
-    _, last_day = calendar.monthrange(year, month)
-    date_to = datetime(year, month, last_day).strftime("%Y-%m-%d")
-
-    print(f"📅 Получаем данные за {month}/{year}: {date_from} → {date_to}")
-
+async def get_month_data(month: int, year: int):
     async with httpx.AsyncClient() as client:
+        dates = get_dates(month, year)
+        date_from = dates["from"]
+        date_to = dates["to"]
+
+        print(f"📅 Получаем данные за {dates['title']} ({date_from} → {date_to})")
+
         teachers = await get_teachers(client)
         print(f"👨‍🏫 Найдено преподавателей: {len(teachers)}")
 
@@ -56,12 +52,8 @@ async def get_month_data(month: int, year: int | None = None):
 
             output.append([teacher["name"], students_count, left_count, percent])
 
-        # Если данных нет → хотя бы заглушка
-        if len(output) == 1:
-            output.append(["нет данных", 0, 0, "0%"])
-
         print("✅ get_month_data finished")
-        return output
+        return output   # <-- возвращаем готовую таблицу
 
 
 # =======================
@@ -76,30 +68,23 @@ async def get_teachers(client):
     return teachers
 
 
+# 🔽 Тут изменили
 async def get_units(client, teacher, date_from, date_to):
-    def check_unit(unit):
-        not_related_items = list(filter(lambda item: item["TeacherId"] != teacher, unit["ScheduleItems"]))
-        if len(not_related_items) == 0:
-            return True
-        schedule_items = list(filter(lambda item: item["TeacherId"] == teacher, unit["ScheduleItems"]))
-        for item in schedule_items:
-            if "EndDate" in item:
-                if item["BeginDate"] != item["EndDate"]:
-                    return True
-            else:
-                return True
-        return False
-
     path = api + "GetEdUnits"
     params["teacherId"] = teacher
     params["dateFrom"] = date_from
     params["dateTo"] = date_to
     response = await client.get(path, params=params)
     response = response.json()
-    units = response["EdUnits"]
-    units = list({unit["Id"]: unit for unit in units}.values())  # уникальные
-    units = list(filter(check_unit, units))
+
+    # 🔍 Логируем сырые данные от HollyHop
+    print(f"📡 Raw units response for teacher {teacher}: {response}")
+
+    units = response.get("EdUnits", [])
+    # ⚠️ Временно убираем строгую фильтрацию
+    units = list({unit["Id"]: unit for unit in units}.values())  # уникальные по Id
     units = list(map(lambda unit: unit["Id"], units))
+
     return units
 
 
@@ -159,3 +144,13 @@ def unique_left_count(links, date_from, date_to):
         if False not in units:
             count += 1
     return count
+
+
+def get_dates(month, year):
+    month = int(month)
+    year = int(year)
+    date_from = datetime(year, month, 1).strftime("%Y-%m-%d")
+    _, day = calendar.monthrange(year, month)
+    date_to = datetime(year, month, day).strftime("%Y-%m-%d")
+    title = datetime(year, month, 1).strftime("%B %Y")
+    return {"from": date_from, "to": date_to, "title": title, "year": year}
