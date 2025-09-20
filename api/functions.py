@@ -34,14 +34,14 @@ async def get_month_data(month: int, year: int):
         print(f"👨‍🎓 Всего студентов: {len(students)}")
 
         # Заголовки таблицы
-        output = [["Преподаватель", "Ученики", "Откол", "% откола"]]
+        output = [["Преподаватель", "Ученики", "Откол", "% откола", "Источник"]]
 
         for teacher in teachers:
-            teacher["units"] = await get_units(client, teacher["id"], date_from, date_to)
-            print(f"➡️ {teacher['name']} → найдено юнитов: {len(teacher['units'])}")
+            units, source = await get_units(client, teacher["id"], date_from, date_to)
+            print(f"➡️ {teacher['name']} → найдено юнитов: {len(units)} (source={source})")
 
             teacher["links"] = []
-            for unit in teacher["units"]:
+            for unit in units:
                 teacher["links"] += list(filter(lambda link: link["EdUnitId"] == unit, links))
 
             students_count = unique_students_count(teacher["links"])
@@ -50,7 +50,7 @@ async def get_month_data(month: int, year: int):
 
             print(f"   👥 {teacher['name']} → Ученики={students_count}, Откол={left_count}, %={percent}")
 
-            output.append([teacher["name"], students_count, left_count, percent])
+            output.append([teacher["name"], students_count, left_count, percent, source])
 
         print("✅ get_month_data finished")
         return output   # <-- возвращаем готовую таблицу
@@ -68,47 +68,50 @@ async def get_teachers(client):
     return teachers
 
 
-# 🔽 Универсальная функция получения юнитов
+# 🔽 Универсальный get_units с fallback
 async def get_units(client, teacher, date_from, date_to):
     path = api + "GetEdUnits"
 
-    # 1. Пытаемся запросить с датами
+    # 1. Сначала пробуем с датами
     params_with_dates = {
-        "authkey": key,
+        "authkey": params["authkey"],
         "teacherId": teacher,
         "dateFrom": date_from,
         "dateTo": date_to,
     }
     response = await client.get(path, params=params_with_dates)
     response = response.json()
-
     units = response.get("EdUnits", [])
-    if not units:
-        print(f"⚠️ Нет юнитов по датам для teacher={teacher}, пробуем без дат...")
-        # 2. Если пусто → пробуем без фильтра
-        params_no_dates = {
-            "authkey": key,
-            "teacherId": teacher,
-        }
-        response = await client.get(path, params=params_no_dates)
-        response = response.json()
-        units = response.get("EdUnits", [])
 
-    # Логируем
-    print(f"📡 Units response for teacher {teacher}: найдено {len(units)}")
+    if units:
+        units = list({unit["Id"]: unit for unit in units}.values())
+        units = list(map(lambda unit: unit["Id"], units))
+        return units, "по датам"
 
-    # Обработка
-    units = list({unit["Id"]: unit for unit in units}.values())  # уникальные по Id
+    # 2. Если пусто → пробуем без дат
+    print(f"⚠️ Нет юнитов по датам для teacher={teacher}, пробуем без дат...")
+    params_no_dates = {
+        "authkey": params["authkey"],
+        "teacherId": teacher,
+    }
+    response = await client.get(path, params=params_no_dates)
+    response = response.json()
+    units = response.get("EdUnits", [])
+
+    units = list({unit["Id"]: unit for unit in units}.values())
     units = list(map(lambda unit: unit["Id"], units))
 
-    return units
+    if units:
+        return units, "без дат"
+    else:
+        return [], "нет данных"
 
 
 async def get_all_students(client, skip):
     students = []
     path = api + "GetStudents"
-    params["skip"] = skip
-    response = await client.get(path, params=params)
+    params_full = {"authkey": params["authkey"], "skip": skip}
+    response = await client.get(path, params=params_full)
     response = response.json()
     students += response["Students"]
     if len(students) % 1000 == 0 and len(students) > 0:
@@ -120,10 +123,8 @@ async def get_all_students(client, skip):
 async def get_all_student_unit_links(client, date_from, date_to, skip):
     links = []
     path = api + "GetEdUnitStudents"
-    params["skip"] = skip
-    params["dateFrom"] = date_from
-    params["dateTo"] = date_to
-    response = await client.get(path, params=params)
+    params_full = {"authkey": params["authkey"], "skip": skip, "dateFrom": date_from, "dateTo": date_to}
+    response = await client.get(path, params=params_full)
     response = response.json()
     links += response["EdUnitStudents"]
     if len(links) % 1000 == 0 and len(links) > 0:
