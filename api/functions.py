@@ -52,8 +52,12 @@ async def get_month_data(month: int, year: int):
 
             output.append([teacher["name"], students_count, left_count, percent])
 
+        # ✅ Если данных нет, возвращаем "нет данных"
+        if len(output) == 1:
+            output.append(["нет данных", 0, 0, "0%"])
+
         print("✅ get_month_data finished")
-        return output   # <-- возвращаем готовую таблицу
+        return output
 
 
 # =======================
@@ -68,7 +72,6 @@ async def get_teachers(client):
     return teachers
 
 
-# 🔽 Тут изменили
 async def get_units(client, teacher, date_from, date_to):
     path = api + "GetEdUnits"
     params["teacherId"] = teacher
@@ -81,8 +84,8 @@ async def get_units(client, teacher, date_from, date_to):
     print(f"📡 Raw units response for teacher {teacher}: {response}")
 
     units = response.get("EdUnits", [])
-    # ⚠️ Временно убираем строгую фильтрацию
-    units = list({unit["Id"]: unit for unit in units}.values())  # уникальные по Id
+    # ⚠️ Убираем дубли по Id
+    units = list({unit["Id"]: unit for unit in units}.values())
     units = list(map(lambda unit: unit["Id"], units))
 
     return units
