@@ -44,8 +44,6 @@ async def get_month_data(month: int, year: int):
             for unit in teacher["units"]:
                 teacher["links"] += list(filter(lambda link: link["EdUnitId"] == unit, links))
 
-            print(f"   🔍 Links for {teacher['name']}: {teacher['links']}")
-
             students_count = unique_students_count(teacher["links"])
             left_count = unique_left_count(teacher["links"], date_from, date_to)
             percent = "0.0%" if not students_count else f"{left_count / students_count * 100:.2f}%"
@@ -54,13 +52,8 @@ async def get_month_data(month: int, year: int):
 
             output.append([teacher["name"], students_count, left_count, percent])
 
-        # ✅ Если данных нет, возвращаем "нет данных"
-        if len(output) == 1:
-            print("⚠️ Нет данных: ни одного юнита/связи не найдено")
-            output.append(["нет данных", 0, 0, "0%"])
-
         print("✅ get_month_data finished")
-        return output
+        return output   # <-- возвращаем готовую таблицу
 
 
 # =======================
@@ -75,20 +68,37 @@ async def get_teachers(client):
     return teachers
 
 
+# 🔽 Универсальная функция получения юнитов
 async def get_units(client, teacher, date_from, date_to):
     path = api + "GetEdUnits"
-    params["teacherId"] = teacher
-    params["dateFrom"] = date_from
-    params["dateTo"] = date_to
-    response = await client.get(path, params=params)
+
+    # 1. Пытаемся запросить с датами
+    params_with_dates = {
+        "authkey": key,
+        "teacherId": teacher,
+        "dateFrom": date_from,
+        "dateTo": date_to,
+    }
+    response = await client.get(path, params=params_with_dates)
     response = response.json()
 
-    # 🔍 Логируем сырые данные от HollyHop
-    print(f"📡 Raw units response for teacher {teacher}: {response}")
-
     units = response.get("EdUnits", [])
-    # ⚠️ Убираем дубли по Id
-    units = list({unit["Id"]: unit for unit in units}.values())
+    if not units:
+        print(f"⚠️ Нет юнитов по датам для teacher={teacher}, пробуем без дат...")
+        # 2. Если пусто → пробуем без фильтра
+        params_no_dates = {
+            "authkey": key,
+            "teacherId": teacher,
+        }
+        response = await client.get(path, params=params_no_dates)
+        response = response.json()
+        units = response.get("EdUnits", [])
+
+    # Логируем
+    print(f"📡 Units response for teacher {teacher}: найдено {len(units)}")
+
+    # Обработка
+    units = list({unit["Id"]: unit for unit in units}.values())  # уникальные по Id
     units = list(map(lambda unit: unit["Id"], units))
 
     return units
